@@ -17,8 +17,8 @@ public interface MybatisPostRepository extends PostRepository {
             INSERT INTO Post(title, content)
             VALUES(#{title}, #{content} )
             """)
-    @Options(useGeneratedKeys = true, keyProperty = "id")
-    Post save(Post post);
+    @Options(useGeneratedKeys = true, keyColumn="id", keyProperty="id")
+    int save(Post post);
 
     @Override
     @Select("""
@@ -35,6 +35,13 @@ public interface MybatisPostRepository extends PostRepository {
     @Override
     @Select("""
             SELECT * FROM POST
+            ORDER BY 1 DESC
+            OFFSET ${(page - 1) * 10} ROWS FETCH NEXT 10 ROWS ONLY
+            """)
+    List<Post> findPage(int page);
+    @Override
+    @Select("""
+            SELECT * FROM POST
             """)
     List<Post> findAll();
 
@@ -47,18 +54,13 @@ public interface MybatisPostRepository extends PostRepository {
     @Override
     @Insert("""
             <script>
-            INSERT INTO Post(title, content) VALUES 
-            
-            <foreach collection="List" item="posts" separator=","> 
-            (
-                #{title}, 
-                #{content}
-            )
-            </foreach>
-            
+            INSERT INTO POST(title, content) 
+                <foreach collection="list" item="post" separator="UNION ALL">
+                    SELECT #{post.title}, #{post.content} FROM DUAL 
+                </foreach>
             </script>
             """)
-    List<Post> saveAll(List<Post> posts);
+    void saveAll(List<Post> list);
 }
 
 

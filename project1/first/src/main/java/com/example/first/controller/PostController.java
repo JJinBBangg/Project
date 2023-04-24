@@ -35,8 +35,9 @@ public class PostController {
         return postService.get(id);
     }
     @GetMapping("/posts")
-    public List<PostResponse> getList(){
-        return postService.getList();
+    public List<PostResponse> getList(@RequestParam(defaultValue = "1") int page){
+
+        return postService.getList(page);
     }
 }
 /**

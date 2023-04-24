@@ -4,6 +4,7 @@ package com.example.first.response;
 import com.example.first.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
  */
 
 @Getter
+@NoArgsConstructor
 public class PostResponse {
     private Long id;
     private String title;
@@ -19,7 +21,7 @@ public class PostResponse {
 
     public PostResponse (Post post){
          this.id = post.getId();
-         this.title = post.getTitle();
+         this.title = post.getTitle().substring(0,Math.min(post.getTitle().length(), 10));
          this.content = post.getContent();
     }
 

@@ -7,7 +7,6 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 public class PostCreate {
-    public long id;
     @NotBlank(message = "타이틀이 입력하세요.")
     public String title;
     @NotBlank(message = "콘텐츠가 없습니다.")
@@ -18,7 +17,6 @@ public class PostCreate {
     // 실행 중인 쓰레드 간 서로의 간섭에 의해 생길 수 있는 동기화(synchronization)
     // 문제에 대한 걱정을 안 해도 되게끔 해줍니다. (이것을 바로 Thread safe 하다고 합니다.)
     public PostCreate(long id, String title, String content) {
-        this.id = id;
         this.title = title;
         this.content = content;
     }

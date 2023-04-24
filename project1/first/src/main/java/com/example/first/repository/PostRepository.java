@@ -9,19 +9,17 @@ import java.util.List;
 public interface PostRepository {
 
 
-    Post save(Post post);
+    int save(Post post);
 
     int count();
 
-    @Select("""
-            SELECT COUNT(ID) count FROM POST
-            """)
-
     int deleteAll();
+
+    List<Post> findPage(int page);
 
     List<Post> findAll();
 
     Post findById(Long id);
 
-    List<Post> saveAll(List<Post> posts);
+    void saveAll(List<Post> posts);
 }

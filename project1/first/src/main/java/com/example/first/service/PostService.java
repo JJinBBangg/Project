@@ -4,6 +4,7 @@ package com.example.first.service;
 import com.example.first.entity.Post;
 import com.example.first.repository.PostRepository;
 import com.example.first.request.PostCreate;
+import com.example.first.request.PostEdit;
 import com.example.first.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor // final로 생성된 field의 생성자 자동 autowired
 public class PostService {
 
-    private final PostRepository PostRepository;
+    private final PostRepository postRepository;
+
 
     public void write(PostCreate postCreate){
         Post post = Post.builder()
@@ -25,18 +27,22 @@ public class PostService {
                 .content(postCreate.getContent())
                 .build();
 //                new Post(postCreate.getTitle(), postCreate.getContent());
-        PostRepository.save(post);
+        postRepository.save(post);
     }
 
     public PostResponse get(Long id)  {
-        Post post = PostRepository.findById(id);
-        return new PostResponse(post);
+        return new PostResponse(postRepository.findById(id));
     }
 
-    public List<PostResponse> getList() {
-        return PostRepository.findAll().stream()
+    public List<PostResponse> getList(int page) {
+        return postRepository.findPage(page).stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
+    }
+    public void edit(Long id, PostEdit postEdit){
+        Post post =postRepository.findById(id);
+        post.setTitle("");
+        post.setContent("");
     }
 }
     // 데이터 양이 많은 경우 -> 비용이 너무 많이 든다
