@@ -1,6 +1,7 @@
 package com.example.first.entity;
 
 
+import com.example.first.request.PostEdit;
 import lombok.*;
 
 @Data
@@ -18,4 +19,14 @@ public class Post {
         this.content=content;
     }
 
+    public PostEditor.PostEditorBuilder toEditor(){
+        return  PostEditor.builder()
+                .title(title)
+                .content(content);
+    }
+
+    public void edit(PostEditor postEditor) {
+        this.title = postEditor.getTitle();
+        this.content = postEditor.getContent();
+    }
 }

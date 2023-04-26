@@ -2,7 +2,9 @@ package com.example.first.controller;
 
 
 import com.example.first.entity.Post;
+import com.example.first.exception.InvalidRequest;
 import com.example.first.request.PostCreate;
+import com.example.first.request.PostEdit;
 import com.example.first.response.PostResponse;
 import com.example.first.service.PostService;
 import jakarta.validation.Valid;
@@ -26,23 +28,34 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request/*, BindingResult result*/)  {
-        postService.write(request);
+    public void post(@RequestBody @Valid PostCreate request/*, BindingResult result*/) {
+            request.validate();
+            postService.write(request);
     }
 
     @GetMapping("/posts/{id}")
-    public PostResponse get(@PathVariable Long id){
+    public PostResponse get(@PathVariable Long id) {
         return postService.get(id);
     }
-    @GetMapping("/posts")
-    public List<PostResponse> getList(@RequestParam(defaultValue = "1") int page){
 
+    @GetMapping("/posts")
+    public List<PostResponse> getList(@RequestParam(defaultValue = "1") int page) {
         return postService.getList(page);
+    }
+
+    @PatchMapping("/posts/{postId}")
+    public void edit(@RequestBody @Valid PostEdit postEdit, @PathVariable Long postId) {
+        postService.edit(postId, postEdit);
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable Long postId) {
+        postService.delete(postId);
     }
 }
 /**
- *  / posts 글 전체 조회
- *  / posts/{postId} - > 글 하나만 조회
+ * / posts 글 전체 조회
+ * / posts/{postId} - > 글 하나만 조회
  */
 // Request(DTO)클래스
 // Response 클래스
@@ -82,18 +95,18 @@ public class PostController {
 //        String title = postCreate.getTitle();
 //        String content = postCreate.getContent();
 
-        //데이터를 검증하는 이류
-        //1. client 개발자가 깜빡했을 수 있다. 실수로 값을 안보낼 수 있다.
-        //2. client bug로 값이 누락 될 수 있음
-        //3. 외부에서 임의로 값을 조작해서 보낼 수 있음
-        //4. DB에 값을 저장할 때 의도치 않은 오류가 발생 할 수 있다.
-        //5. 서버 개발자의 편안함을 위해서
+//데이터를 검증하는 이류
+//1. client 개발자가 깜빡했을 수 있다. 실수로 값을 안보낼 수 있다.
+//2. client bug로 값이 누락 될 수 있음
+//3. 외부에서 임의로 값을 조작해서 보낼 수 있음
+//4. DB에 값을 저장할 때 의도치 않은 오류가 발생 할 수 있다.
+//5. 서버 개발자의 편안함을 위해서
 
-        // 아래와 같은 작업은 반복가능 성이 큼
-        // 반복을 3번이상하게 될 시 잘못된 것이 아닌지 고민!!(하드코딩ㄴㄴ)
-        // 누락되는 사항이 생길 수 있음
-        // 생각보다 검증해야할 것이 많음(꼼꼼해야함) !!중요
-        // 뭔가 개발자 스럽지 않다!!
+// 아래와 같은 작업은 반복가능 성이 큼
+// 반복을 3번이상하게 될 시 잘못된 것이 아닌지 고민!!(하드코딩ㄴㄴ)
+// 누락되는 사항이 생길 수 있음
+// 생각보다 검증해야할 것이 많음(꼼꼼해야함) !!중요
+// 뭔가 개발자 스럽지 않다!!
 //        if(title == null || title.equals("")){
 //            throw new Exception("타이틀 값이 없습니다.");
 //        }

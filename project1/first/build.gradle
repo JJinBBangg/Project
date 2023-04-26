@@ -1,9 +1,9 @@
 plugins {
 	id 'java'
-	id 'war'
 	id 'org.springframework.boot' version '3.0.5'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id "com.github.node-gradle.node" version "3.5.1"
+	id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
 node{
 	version = '18.16.0'
@@ -20,10 +20,15 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	asciidoctorExt
 }
 
 repositories {
 	mavenCentral()
+}
+
+ext {
+	snippetsDir = file('build/generated-snippets')
 }
 
 dependencies {
@@ -32,13 +37,22 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation group: 'com.oracle.database.jdbc', name: 'ojdbc10', version: '19.18.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.1'
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.0'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0'
 
+}
+test {
+	outputs.dir snippetsDir
+}
+asciidoctor {
+	inputs.dir snippetsDir
+	configurations 'asciidoctorExt'
+	dependsOn test
 }
 
 tasks.named('test') {
@@ -55,3 +69,15 @@ task buildFrontEnd(type: NpmTask, dependsOn: setUp){
 	args = ['run', 'build']
 }
 processResources.dependsOn 'buildFrontEnd'
+
+bootJar {
+	dependsOn asciidoctor
+	copy{
+		from asciidoctor.outputDir
+		into "src/main/resources/static/docs"
+	}
+//	from ("${asciidoctor.outputDir}/index") {
+//		println ">>>" + asciidoctor.outputDir
+//		into 'src/main/resources/static/docs'
+//	}
+}

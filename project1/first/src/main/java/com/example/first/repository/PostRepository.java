@@ -21,5 +21,9 @@ public interface PostRepository {
 
     Post findById(Long id);
 
-    void saveAll(List<Post> posts);
+    int saveAll(List<Post> posts);
+
+    int edit (Post post);
+
+    int delete(Long id);
 }

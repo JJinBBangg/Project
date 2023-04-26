@@ -60,7 +60,21 @@ public interface MybatisPostRepository extends PostRepository {
                 </foreach>
             </script>
             """)
-    void saveAll(List<Post> list);
+    int saveAll(List<Post> list);
+
+    @Override
+    @Update("""
+            UPDATE POST SET
+                title = #{title},
+                content = #{content}
+            """)
+    int edit(Post post);
+
+    @Override
+    @Delete("""
+            DELETE FROM POST WHERE id = #{id}
+            """)
+    int delete(Long id);
 }
 
 

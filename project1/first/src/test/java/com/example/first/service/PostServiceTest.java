@@ -1,8 +1,10 @@
 package com.example.first.service;
 
 import com.example.first.entity.Post;
+import com.example.first.exception.PostNotFound;
 import com.example.first.repository.PostRepository;
 import com.example.first.request.PostCreate;
+import com.example.first.request.PostEdit;
 import com.example.first.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -114,18 +117,117 @@ class PostServiceTest {
     @DisplayName("글 수정 조회")
     void test4() throws Exception {
         //given
-        Post post = Post.builder().title("제목").content("내용")
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
                 .build();
 
 
         postRepository.save(post);
 
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
         //when
-        List<PostResponse> posts = postService.getList(1);
+        postService.edit(post.getId(), postEdit);
 
         //then
-        Assertions.assertNotNull(posts);
-        assertEquals(10, posts.size());
-        Assertions.assertEquals("내용30", posts.get(0).getContent());
+       Post chagedPost =  postRepository.findById(post.getId());
+        Assertions.assertNotNull(chagedPost);
+        Assertions.assertEquals("제목1", chagedPost.getTitle());
+        Assertions.assertEquals("내용1", chagedPost.getContent());
+    }
+    @Test
+    @DisplayName("글 삭제")
+    void test5() throws Exception {
+        //given
+        Post post1 = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+        Post post2 = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+
+
+        postRepository.save(post1);
+        postRepository.save(post2);
+        //when
+        postService.delete(post1.getId());
+        postService.delete(post2.getId());
+
+        //then
+        Assertions.assertEquals(0, postRepository.count());
+    }
+    @Test
+    @DisplayName("글 1개 조회")
+    void test6() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+        postRepository.save(post);
+        //expected
+        assertThrows(PostNotFound.class, ()->{
+            postService.get(post.getId()+1L);
+        });
+    }
+    @Test
+    @DisplayName("글 삭제 - 존재하지 않는 글")
+    void test7() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+        postRepository.save(post);
+
+        //when
+        postRepository.delete(post.getId()+1L);
+        //expected
+        assertThrows(PostNotFound.class, ()->{
+            postService.get(post.getId()+1L);
+        });
+    }
+    @Test
+    @DisplayName("글 삭제 - 존재하지 않는 글")
+    void test8() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+        postRepository.save(post);
+
+        //when
+        //expected
+        assertThrows(PostNotFound.class, ()->{
+            postService.delete(post.getId()+1L);
+        });
+    }
+    @Test
+    @DisplayName("글 수정 조회 - 존재하지 않는 글")
+    void test9() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
+                .build();
+
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+        //when
+        // expected
+        assertThrows(PostNotFound.class, ()->{
+            postService.edit(post.getId()+1L, postEdit);
+        });
     }
 }
