@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 
 import axios from "axios";
 import {useRouter} from "vue-router";
@@ -8,7 +8,12 @@ const router= useRouter();
 
 const title =ref("")
 const content = ref("")
-
+const props = defineProps({
+    postId:{
+        type : [Number,String],
+        require : true
+    },
+});
 const write = function (){
     axios.post("/api/posts",{
         title: title.value,
@@ -17,6 +22,9 @@ const write = function (){
         router.replace({name : 'home'})
     })
 }
+onMounted(()=>{
+    axios.post()
+})
 </script>
 
 <template>
@@ -31,7 +39,7 @@ const write = function (){
     </div>
 
     <div class="my-2">
-        <el-button type="primary" @click="write()"> 글 작성 완료</el-button>
+        <el-button type="warning" @click="write()">수정완료</el-button>
     </div>
 </template>
 
